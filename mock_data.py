@@ -20,12 +20,6 @@ from data_dictionary import *
 
 # 模拟文件的相关数据
 class FileData:
-	# def __init__(self, file_path):
-	# 	self.file = Path(file_path)
-	# 	self.file_size = self.file.stat().st_size
-	# 	self.file_suffix = self.file.suffix[1:]
-
-	# 获取文件信息
 	@staticmethod
 	def get_file_info(file_path: Path):
 		return {"file_name": file_path.name,  # 文件名
@@ -108,19 +102,30 @@ class DiagnosisData:
 				'sex': random.choice([1, 2]),
 				'age': age,
 				'birthday': f'{birthday}',
-				'idCard': DiagnosisData.mock_id(birthday)}
+				'id_card': DiagnosisData.mock_id(birthday)}
 
 	# 模拟检查信息
 	@staticmethod
-	def mock_observation_info(self):
-		pass
-		# accessionNumber
-		# symptom
-		# clinicDiagnosis
-		patient_class = [1,2,3,4]
-		service_sect_id = ['CR', 'MR', 'TJ', 'CT', 'DX', 'MG', 'XA']
+	def mock_observation_info():
+		service_sect_id = random.choice(['CR', 'MR', 'CT', 'DX', 'MG', 'XA', 'RF'])
 
+		# 根据检查类型挑选出对应的检查信息
+		def pick_observation_by_sect_id(ssid, observation_list):
+			for observation in observation_list:
+				if observation['ServiceSectID'] == ssid:
+					return observation
 
+		observation_dict = pick_observation_by_sect_id(service_sect_id, OBSERVATION_SAMPLE)
+		# 检查时间，取当前时间5小时以内的任意时间
+		technician_date = ((datetime.datetime.now()-datetime.timedelta(minutes=random.randint(0,5))).strftime("%Y-%m-%d %H:%M:%S"))
+		return {'accession_number': f"{datetime.datetime.now().strftime('%H%M%S%f')}-{random.randint(1, 100)}",
+				'symptom': f'病人主诉{fake.text(max_nb_chars=200)}',
+				'patient_class': random.choice([1, 2, 3, 4]),
+				'service_sect_id': service_sect_id,
+				'exam_body_part': observation_dict['ExamBodyPart'],
+				'procedure_name': observation_dict['ProcedureName'],
+				'technician_date': technician_date,
+				'clinic_diagnosis': f'临床诊断{fake.text(max_nb_chars=200)}'}
 
 
 if __name__ == "__main__":
@@ -128,5 +133,6 @@ if __name__ == "__main__":
 	# file = fd.generate_zip(r'D:\Python\Project\testProject\RMCPerformance\test_file\temp')
 	# print(fd.get_file_info(Path(file)))
 	# fake = Faker('zh_CN')
-	print(DiagnosisData().mock_id(fake.date_of_birth(tzinfo=None, minimum_age=0, maximum_age=90)))
-	print(DiagnosisData().mock_patient_info())
+	# print(DiagnosisData().mock_id(fake.date_of_birth(tzinfo=None, minimum_age=0, maximum_age=90)))
+	# print(DiagnosisData().mock_patient_info())
+	print(DiagnosisData().mock_observation_info())

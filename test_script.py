@@ -5,6 +5,7 @@
 @Contact : yeahcheung213@163.com
 """
 import datetime
+import logging
 import os
 
 from locust import task, between, constant
@@ -38,7 +39,7 @@ class RequestDiagnosisUser(HttpRequestUser):
 	def request_diagnosis(self):
 		# 上传影像
 		upload_api = '/openapi/File/dicom/Upload'
-		headers = self.request_header  # 拿到获取的token放进headers
+		upload_headers = self.request_header  # 拿到获取的token放进headers
 		# 生成一个zip文件
 		test_file = FileData().generate_zip(r'./test_file/temp')
 		test_file_info = FileData().get_file_info(Path(test_file))
@@ -54,25 +55,40 @@ class RequestDiagnosisUser(HttpRequestUser):
 						open(test_file, 'rb'),
 						'application/octet-stream')}
 		)
-		headers['content-type'] = m_body.content_type
+		upload_headers['content-type'] = m_body.content_type
 		# self.http_request(upload_api, headers, '上传文件', data_body=m_body)
-		result = self.http_request(upload_api, headers, '上传文件', data_body=m_body).json()
+		result = self.http_request(upload_api, upload_headers, '上传文件', data_body=m_body).json()
 
 		# 上传成功后，调用诊断申请接口
 		if result['code'] == 200 and result['data']['isFinish']:
+			request_headers = self.request_header
 			request_api = '/openapi/Diagnosis/Add'
-			j_body = {'name': '',
-					  'sex':1,
-					  'age':1,
-					  'ageUnit':'岁',
-					  'accessionNumber':'',
-					  'idCard':'',
-					  'symptom':'',
-					  'clinicDiagnosis':'',
-					  'serviceCenterUID':''}
-			self.http_request(request_api, headers, '申请诊断', json_body=j_body)
+			request_headers['content-type'] = 'application/json'
 
-	# 申请远程诊断
+			patient_info = DiagnosisData().mock_patient_info()
+			observation_info = DiagnosisData().mock_observation_info()
+
+			j_body = {'name': patient_info['name'],
+					  'sex': patient_info['sex'],
+					  'age': patient_info['age'],
+					  'ageUnit': '岁',
+					  'accessionNumber': observation_info['accession_number'],
+					  'idCard': patient_info['id_card'],
+					  'symptom': observation_info['symptom'],
+					  'clinicDiagnosis': observation_info['clinic_diagnosis'],
+					  'patientClass': observation_info['patient_class'],
+					  'serviceCenterUID': 'c25700bb-e081-4341-9593-acc3010d63d4',
+					  'fileURL': result['data']['url'],
+					  'FileUID': result['data']['fileUID'],
+					  'hasWrite': 0,
+					  'serviceSectID': observation_info['service_sect_id'],
+					  'technicianDate': observation_info['technician_date'],
+					  'exambodypart': observation_info['exam_body_part'],
+					  'procedureName': observation_info['procedure_name'],
+					  'UniqueID': f'{uuid4()}'}
+
+			logging.info(j_body)
+			self.http_request(request_api, request_headers, '申请诊断', json_body=j_body)
 
 	# 获取诊断结果
 	@task(0)
@@ -86,12 +102,6 @@ class RequestDiagnosisUser(HttpRequestUser):
 	# 执行完任务后执行，每个user执行一次
 	def on_stop(self):
 		pass
-
-
-# if os.path.exists(r'./test_file/temp'):
-
-
-# 	os.remove(r'./test_file/temp')
 
 
 def start():

@@ -382,5 +382,27 @@ CODE_LIST = ['110000', '110100', '110101', '110102', '110105', '110106', '110107
              '810303', '810304', '810305', '810306', '810307', '810308', '810309', '820000', '820100', '820101',
              '820102', '820103', '820104', '820105', '820200', '820201', '820300', '820301', '900000']
 
+OBSERVATION_SAMPLE = [{"ProcedureID": "13ea9da0-6298-4de7-8911-a19a015338d7", "ProcedureName": "颅脑平扫",
+                    "ExamBodyPartID": "a89139ff-2793-4647-85f5-a19a01531e2a", "ExamBodyPart": "头颅CT",
+                    "ServiceSectID": "CT"},
+                   {"ProcedureID": "67fda235-9b44-4e21-b280-a29800f663b1", "ProcedureName": "胸正位",
+                    "ExamBodyPartID": "69c9b35f-1551-4f17-9c5b-a29800f6638c", "ExamBodyPart": "肺部常规",
+                    "ServiceSectID": "CR"},
+                   {"ProcedureID": "1bcb0baa-6b50-400d-b36c-aa2500a441e7", "ProcedureName": "心脏二位",
+                    "ExamBodyPartID": "c863779b-90b3-49a0-a10e-a937014f2a97", "ExamBodyPart": "肺部常规",
+                    "ServiceSectID": "DX"},
+                   {"ProcedureID": "9d82f115-446a-40ed-be03-a19a01533bb7", "ProcedureName": "全胃肠造影",
+                    "ExamBodyPartID": "58737ea4-602a-464e-8fef-a19a01531e2e", "ExamBodyPart": "造影检查",
+                    "ServiceSectID": "RF"},
+                   {"ProcedureID": "f2c0ca1d-41dc-4dcc-b07f-a19a01533b82", "ProcedureName": "右上臂增强",
+                    "ExamBodyPartID": "c93a8e07-907d-41b8-b863-a19a01531e2e", "ExamBodyPart": "上肢",
+                    "ServiceSectID": "MR"},
+                   {"ProcedureID": "8bfa5206-172d-4bb9-838b-a19a01533b07", "ProcedureName": "双侧乳腺",
+                    "ExamBodyPartID": "b8398d08-13d4-496a-adf6-a19a01531e2d", "ExamBodyPart": "乳腺摄片",
+                    "ServiceSectID": "MG"},
+                   {"ProcedureID": "91377950-f11c-4110-97f1-a937014f2b23", "ProcedureName": "脑血管造影",
+                    "ExamBodyPartID": "c9f144c9-2b34-4d56-9d65-a937014f2a97", "ExamBodyPart": "血管造影",
+                    "ServiceSectID": "XA"}]
+
 if __name__ == "__main__":
 	pass
