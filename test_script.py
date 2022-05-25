@@ -4,21 +4,25 @@
 @Author: 九层风（YePing Zhang）
 @Contact : yeahcheung213@163.com
 """
-import datetime
-import logging
-import os
+# import datetime
+# import logging
+# import os
+# import random
+import math
 
 from locust import task, between, constant
+from locust import LoadTestShape
+
 from requests_toolbelt import MultipartEncoder
 
 from locust_request_encapsulation import *
-
 from mock_data import *
+from config import LOAD_SHAPE
 
 
 class RequestDiagnosisUser(HttpRequestUser):
 	# wait_time = between(3, 5)
-	wait_time = constant(2)
+	wait_time = constant(2)  # 每隔两秒钟执行一次任务
 	user_token = ''
 	request_header = {}
 
@@ -35,7 +39,7 @@ class RequestDiagnosisUser(HttpRequestUser):
 		self.request_header = {'userToken': self.user_token}
 
 	# 上传诊断文件\提交诊断申请
-	@task
+	@task(0)
 	def request_diagnosis(self):
 		# 上传影像
 		upload_api = '/openapi/File/dicom/Upload'
@@ -91,12 +95,18 @@ class RequestDiagnosisUser(HttpRequestUser):
 			self.http_request(request_api, request_headers, '申请诊断', json_body=j_body)
 
 	# 获取诊断结果
-	@task(0)
+	@task(1)
 	def get_diagnosis_result(self):
 		api = '/openapi/Diagnosis/GetResultByUniqueID'
-		# headers = {'UserToken': self.user_token}
 		headers = self.request_header
-		params = {'uniqueID': '92b32e70-7D34-5e9f-A15C-31CEaCf26bAd'}
+		# 各种状态的检查数据 3040\3050\3080\4030
+		unique_id_list = ['C55DDC87-baef-DF46-6DA2-c9E62c684E2a',
+						  '2Bcb81A3-D668-cCcD-Ac69-B4Fb4cE87cfd',
+						  '8B7D8d3F-1E2b-1792-3d25-f6A1CB72e758',
+						  '811CABEF-ee6f-dc35-EF78-128d5a45F2D8',
+						  'e6b8e27C-6Aeb-69ec-e868-deEDBEcDCE33']
+
+		params = {'uniqueID': f'{random.choice(unique_id_list)}'}
 		self.http_request(api, headers, '获取诊断结果', params=params)
 
 	# 执行完任务后执行，每个user执行一次
@@ -104,6 +114,33 @@ class RequestDiagnosisUser(HttpRequestUser):
 		pass
 
 
+# 步进加载模式，不支持命令行模式，如果是命令行的话以下需要注释
+# class StepLoadShape(LoadTestShape):
+# 	"""
+# 	A step load shape
+# 	Keyword arguments:
+# 		step_time -- Time between steps-每步间隔时间
+# 		step_load -- User increase amount at each step-每步用户增加数量
+# 		spawn_rate -- Users to stop/start per second at every step-每一步用户启动停止的数量/秒
+# 		time_limit -- Time limit in seconds-运行限制时间
+# 	"""
+#
+# 	step_time = LOAD_SHAPE['STEP_TIME']
+# 	step_load = LOAD_SHAPE['STEP_LOAD']
+# 	spawn_rate = LOAD_SHAPE['SPAWN_RATE']
+# 	time_limit = LOAD_SHAPE['TIME_LIMIT']
+#
+# 	def tick(self):
+# 		# 运行时间# 运行时间
+# 		run_time = self.get_run_time()
+#
+# 		if run_time > self.time_limit:
+# 			return None
+# 		current_step = math.floor(run_time / self.step_time) + 1
+# 		return current_step * self.step_load, self.spawn_rate
+
+
+# 单独测试脚本时执行，正式测试运行run.py
 def start():
 	import subprocess
 	cli = f"locust -f test_script.py -H {LOCUST_CONF['TEST_HOST']} --web-host {LOCUST_CONF['SHOW_URL']} -P {LOCUST_CONF['SHOW_PORT']}"

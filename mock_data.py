@@ -128,6 +128,7 @@ class DiagnosisData:
 				'clinic_diagnosis': f'临床诊断{fake.text(max_nb_chars=200)}'}
 
 
+
 if __name__ == "__main__":
 	# fd = FileData()
 	# file = fd.generate_zip(r'D:\Python\Project\testProject\RMCPerformance\test_file\temp')
